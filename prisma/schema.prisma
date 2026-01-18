@@ -1,0 +1,242 @@
+// CodeQuest - Gamified Coding Learning Platform Database Schema
+// This schema defines all models needed for a CodeDex-inspired learning platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  image         String?  // Profile picture URL
+
+  // Gamification fields
+  xp            Int      @default(0)      // Total experience points
+  level         Int      @default(1)     // User level based on XP
+  streak        Int      @default(0)     // Current streak (days in a row)
+  maxStreak     Int      @default(0)     // Best streak achieved
+  lastActivity  DateTime @default(now()) // Last day user was active
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  progress      UserProgress[]
+  userBadges    UserBadge[]
+  session       Session?
+  accounts      Account[]
+
+  @@index([email])
+  @@index([xp])
+  @@index([level])
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String   @unique
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================
+// COURSES & LESSONS
+// ============================================
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String?  // Emoji or icon name
+  category    String   // e.g., "JavaScript", "Python", "React"
+  difficulty  String   // "Beginner", "Intermediate", "Advanced"
+  order       Int      // Display order
+  isPublished Boolean  @default(false)
+
+  // Gamification
+  totalXP     Int      @default(0) // XP to complete entire course
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  lessons     Lesson[]
+  progress    UserProgress[]
+
+  @@index([category])
+  @@index([difficulty])
+  @@index([order])
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  description String
+
+  // Lesson content
+  instructions String // Instructions for user
+  starterCode String  // Default code shown in editor
+  solutionCode String // Solution code (for validation)
+
+  // Programming language
+  language    String  // "javascript", "python", etc.
+
+  // Lesson type
+  type        String  // "lesson", "challenge", "quiz"
+
+  // Dependencies
+  order       Int     // Order within course
+  requiresLessonId String? // Previous lesson that must be completed first
+
+  // Gamification
+  xpReward    Int     @default(10)
+  estimatedTime Int   // minutes
+
+  // Validation
+  testCases   String  // JSON array of test cases for validation
+  expectedOutput String? // Expected output for validation
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  requiresLesson Lesson?  @relation("LessonDependency", fields: [requiresLessonId], references: [id])
+  unlockedBy   Lesson[]  @relation("LessonDependency")
+  progress    UserProgress[]
+
+  @@index([courseId])
+  @@index([order])
+  @@index([requiresLessonId])
+}
+
+// ============================================
+// USER PROGRESS
+// ============================================
+
+model UserProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  courseId    String?
+  lessonId    String?
+
+  // Progress tracking
+  isCompleted Boolean  @default(false)
+  attempts    Int      @default(0) // Number of times user tried
+  code        String?  // User's submitted code
+
+  // Timing
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lesson      Lesson?   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+}
+
+// ============================================
+// GAMIFICATION: BADGES & ACHIEVEMENTS
+// ============================================
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  icon        String   // Emoji or icon URL
+  category    String   // "milestone", "streak", "skill", "special"
+
+  // Unlock criteria
+  requirement String   // Human-readable requirement
+  requirementType String // "xp", "level", "streak", "lessons", "courses"
+  requirementValue Int  // Numeric value needed
+
+  // Metadata
+  rarity      String   @default("common") // "common", "rare", "epic", "legendary"
+  isHidden    Boolean  @default(false) // Hidden until unlocked
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+
+  // Relationships
+  userBadges  UserBadge[]
+
+  @@index([category])
+  @@index([rarity])
+}
+
+model UserBadge {
+  id          String   @id @default(cuid())
+  userId      String
+  badgeId     String
+
+  // Timestamp when unlocked
+  unlockedAt  DateTime @default(now())
+
+  // Relationships
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge       Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+}
+
+// ============================================
+// LEADERBOARD
+// ============================================
+
+// We'll use User model with xp index for real-time leaderboard
+// This view/query will be updated periodically
+// You can create a materialized view or scheduled job to cache rankings
