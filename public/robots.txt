@@ -1,0 +1,13 @@
+# robots.txt for CodeQuest
+# Allow all crawlers to access the site
+
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin
+Disallow: /api
+Disallow: /auth
+
+# Sitemap location
+Sitemap: https://codequest.com/sitemap.xml

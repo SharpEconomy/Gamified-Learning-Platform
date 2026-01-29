@@ -1,47 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { sendThankYouEmail, sendAdminSignInNotification } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, email } = body
+    const { email } = body
 
-    if (!name || !email) {
+    // Validate input
+    if (!email) {
       return NextResponse.json(
-        { error: 'Name and email are required' },
+        { error: 'Email is required' },
         { status: 400 }
       )
     }
 
-    if (name.trim().length < 2) {
-      return NextResponse.json(
-        { error: 'Name must be at least 2 characters' },
-        { status: 400 }
-      )
-    }
-
-    if (!email.includes('@')) {
-      return NextResponse.json(
-        { error: 'Please enter a valid email' },
-        { status: 400 }
-      )
-    }
-
-    const user = {
-      id: 'user_' + Date.now(),
-      name: name.trim(),
-      email: email.trim(),
-      xp: 0,
-      level: 1,
-      streak: 0,
-      maxStreak: 0
-    }
-
-    return NextResponse.json({
-      user: user,
-      message: 'Account created successfully!'
+    // Find user by email
+    const user = await db.user.findUnique({
+      where: { email }
     })
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      )
+    }
+
+    // Update last activity
+    await db.user.update({
+      where: { id: user.id },
+      data: { lastActivity: new Date() }
+    })
+
+    // Send thank you email to user
+    const thankYouResult = await sendThankYouEmail(user.email, user.name || user.email.split('@')[0], user.id)
+
+    // Send admin notification about sign-in
+    await sendAdminSignInNotification(user.name || user.email.split('@')[0], user.email, user.id)
+
+    // Return user data (user doesn't have password field)
+    const userWithoutPassword = user
+
+    return NextResponse.json(
+      {
+        message: 'Login successful',
+        user: userWithoutPassword,
+        thankYouEmailSent: thankYouResult.success,
+        adminNotificationSent: thankYouResult.success
+      },
+      { status: 200 }
+    )
   } catch (error) {
-    console.error('Sign-in error:', error)
+    console.error('Signin error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

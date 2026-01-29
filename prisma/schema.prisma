@@ -20,11 +20,19 @@ model User {
   name          String?
   image         String?  // Profile picture URL
 
+  // Authentication fields
+  emailVerified DateTime?
+  password      String?
+  role          String   @default("user") // "user" or "admin"
+  avatar        String?  // Custom avatar URL (separate from image)
+
   // Gamification fields
   xp            Int      @default(0)      // Total experience points
   level         Int      @default(1)     // User level based on XP
   streak        Int      @default(0)     // Current streak (days in a row)
   maxStreak     Int      @default(0)     // Best streak achieved
+  tokens        Int      @default(0)     // Virtual currency for rewards
+  completedCourses Int  @default(0)     // Number of completed courses
   lastActivity  DateTime @default(now()) // Last day user was active
 
   // Timestamps
