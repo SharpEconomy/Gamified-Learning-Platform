@@ -1,5 +1,4 @@
 'use client'
-import { useAuth } from '@/contexts/AuthContext'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -140,7 +139,6 @@ const coursesData: Record<string, Course> = {
 export default function CourseLearnPage() {
   const params = useParams()
   const { theme } = useTheme()
-  const { isAuthenticated } = useAuth()
   const courseId = params.id as string
 
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0)

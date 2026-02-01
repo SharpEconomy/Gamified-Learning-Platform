@@ -222,9 +222,6 @@ export default function LeaderboardPage() {
                 <Link href="/courses" className="hover:text-white transition-colors font-medium">
                   Courses
                 </Link>
-                <Link href="/auth/signin" className="hover:text-white transition-colors font-medium">
-                  Sign In
-                </Link>
               </div>
             </div>
           </div>

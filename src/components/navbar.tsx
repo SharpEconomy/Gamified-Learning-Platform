@@ -30,11 +30,6 @@ export default function Navbar() {
 
         {/* Auth Buttons */}
         <div className="flex items-center gap-3">
-          <Link href="/auth/signin">
-            <Button variant="default" size="sm">
-              Sign In
-            </Button>
-          </Link>
           <Link href="/courses">
             <Button variant="default" size="sm">
               Start Quest

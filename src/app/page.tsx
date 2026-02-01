@@ -8,7 +8,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useMemo, lazy, Suspense } from 'react'
 import { Gamepad2, BookOpen, Zap, Trophy, Code2, ArrowRight, Users, Star, Play, Flame, Award } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
 
 // Lazy load testimonials for better performance
 const TestimonialsSection = lazy(() => import('./components/testimonials-section'))
@@ -92,7 +91,6 @@ const testimonials = [
 
 export default function HomePage() {
   const router = useRouter()
-  const { isAuthenticated } = useAuth()
   const [mounted, setMounted] = useState(false)
 
   // Memoize features array to prevent unnecessary re-renders
@@ -104,12 +102,9 @@ export default function HomePage() {
   }, [])
 
   const handleStartCourse = (courseLink: string) => {
-    if (isAuthenticated()) {
-      router.push(courseLink)
-    } else {
-      router.push('/auth/signin')
-    }
-  }
+  router.push(courseLink)
+}
+
 
   if (!mounted) {
     return null
@@ -392,17 +387,6 @@ export default function HomePage() {
                     Start Learning Now
                   </Button>
                 </Link>
-                <Link href="/auth/signin">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="text-base h-14 px-10 border-2 border-white text-white hover:bg-white/10 px-8 focus:ring-2 focus:ring-purple-200"
-                    aria-label="Sign up for free account"
-                  >
-                    Sign Up Free
-                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                  </Button>
-                </Link>
               </nav>
 
               {/* Social Proof */}
@@ -444,9 +428,6 @@ export default function HomePage() {
                 </Link>
                 <Link href="/leaderboard" className="hover:text-purple-700 transition-colors font-medium focus:underline underline-offset-4">
                   Leaderboard
-                </Link>
-                <Link href="/auth/signin" className="hover:text-purple-700 transition-colors font-medium focus:underline underline-offset-4">
-                  Sign In
                 </Link>
               </nav>
             </div>
