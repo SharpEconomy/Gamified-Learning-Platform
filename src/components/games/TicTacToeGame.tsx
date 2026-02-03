@@ -1,87 +1,102 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback } from "react";
 
 export default function TicTacToeGame() {
-  const [board, setBoard] = useState<(string | null)[]>(Array(9).fill(null))
-  const [xIsNext, setXIsNext] = useState(true)
-  const [winner, setWinner] = useState<string | null>(null)
+  const [board, setBoard] = useState<(string | null)[]>(Array(9).fill(null));
+  const [xIsNext, setXIsNext] = useState(true);
+  const [winner, setWinner] = useState<string | null>(null);
 
   const winningCombos = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
-    [0, 4, 8], [2, 4, 6] // diagonals
-  ]
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8], // rows
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8], // columns
+    [0, 4, 8],
+    [2, 4, 6], // diagonals
+  ];
 
   const calculateWinner = useCallback((squares: (string | null)[]) => {
     for (const combo of winningCombos) {
-      const [a, b, c] = combo
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a]
+      const [a, b, c] = combo;
+      if (
+        squares[a] &&
+        squares[a] === squares[b] &&
+        squares[a] === squares[c]
+      ) {
+        return squares[a];
       }
     }
-    return null
-  }, [])
+    return null;
+  }, []);
 
-  const handleClick = useCallback((index: number) => {
-    if (board[index] || winner) return
+  const handleClick = useCallback(
+    (index: number) => {
+      if (board[index] || winner) return;
 
-    const newBoard = [...board]
-    newBoard[index] = xIsNext ? 'X' : 'O'
-    setBoard(newBoard)
+      const newBoard = [...board];
+      newBoard[index] = xIsNext ? "X" : "O";
+      setBoard(newBoard);
 
-    const newWinner = calculateWinner(newBoard)
-    if (newWinner) {
-      setWinner(newWinner)
-    }
+      const newWinner = calculateWinner(newBoard);
+      if (newWinner) {
+        setWinner(newWinner);
+      }
 
-    setXIsNext(!xIsNext)
-  }, [board, xIsNext, winner, calculateWinner])
+      setXIsNext(!xIsNext);
+    },
+    [board, xIsNext, winner, calculateWinner],
+  );
 
   const aiMove = useCallback(() => {
-    if (winner || !board.includes(null)) return
+    if (winner || !board.includes(null)) return;
 
-    const availableMoves = board.map((cell, index) => cell === null ? index : null).filter((i): i is number => i !== null)
-    const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)]
+    const availableMoves = board
+      .map((cell, index) => (cell === null ? index : null))
+      .filter((i): i is number => i !== null);
+    const randomMove =
+      availableMoves[Math.floor(Math.random() * availableMoves.length)];
 
-    const newBoard = [...board]
-    newBoard[randomMove as number] = 'O'
-    setBoard(newBoard)
+    const newBoard = [...board];
+    newBoard[randomMove as number] = "O";
+    setBoard(newBoard);
 
-    const newWinner = calculateWinner(newBoard)
+    const newWinner = calculateWinner(newBoard);
     if (newWinner) {
-      setWinner(newWinner)
+      setWinner(newWinner);
     }
 
-    setXIsNext(true)
-  }, [board, winner, calculateWinner])
+    setXIsNext(true);
+  }, [board, winner, calculateWinner]);
 
   useEffect(() => {
     if (!xIsNext && !winner) {
       const timer = setTimeout(() => {
-        aiMove()
-      }, 500)
-      return () => clearTimeout(timer)
+        aiMove();
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [xIsNext, winner, aiMove])
+  }, [xIsNext, winner, aiMove]);
 
   const resetGame = useCallback(() => {
-    setBoard(Array(9).fill(null))
-    setXIsNext(true)
-    setWinner(null)
-  }, [])
+    setBoard(Array(9).fill(null));
+    setXIsNext(true);
+    setWinner(null);
+  }, []);
 
-  const isDraw = !winner && !board.includes(null)
+  const isDraw = !winner && !board.includes(null);
 
   const getStatus = () => {
     if (winner) {
-      return winner === 'X' ? '🎉 You Win!' : '🤖 AI Wins!'
+      return winner === "X" ? "🎉 You Win!" : "🤖 AI Wins!";
     }
     if (isDraw) {
-      return "🤝 It's a Draw!"
+      return "🤝 It's a Draw!";
     }
-    return xIsNext ? 'Your Turn (X)' : 'AI Turn (O)'
-  }
+    return xIsNext ? "Your Turn (X)" : "AI Turn (O)";
+  };
 
   return (
     <div className="flex flex-col items-center gap-4 p-6">
@@ -100,15 +115,16 @@ export default function TicTacToeGame() {
             disabled={cell !== null || winner !== null}
             className={`
               w-24 h-24 text-5xl font-bold rounded-xl transition-all duration-200
-              ${cell
-                ? cell === 'X'
-                  ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white border-4 border-blue-700'
-                  : 'bg-gradient-to-br from-red-400 to-red-600 text-white border-4 border-red-700'
-                : 'bg-gradient-to-br from-slate-100 to-slate-200 border-4 border-slate-300 hover:scale-105 hover:border-slate-400 cursor-pointer'
+              ${
+                cell
+                  ? cell === "X"
+                    ? "bg-gradient-to-br from-blue-400 to-blue-600 text-white border-4 border-blue-700"
+                    : "bg-gradient-to-br from-red-400 to-red-600 text-white border-4 border-red-700"
+                  : "bg-gradient-to-br from-slate-100 to-slate-200 border-4 border-slate-300 hover:scale-105 hover:border-slate-400 cursor-pointer"
               }
             `}
           >
-            {cell || ''}
+            {cell || ""}
           </button>
         ))}
       </div>
@@ -120,5 +136,5 @@ export default function TicTacToeGame() {
         Restart Game
       </button>
     </div>
-  )
+  );
 }

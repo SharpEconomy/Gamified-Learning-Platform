@@ -1,32 +1,32 @@
-import nodemailer from 'nodemailer'
+import nodemailer from "nodemailer";
 
-const ADMIN_EMAIL = 'shivta6200@gmail.com'
+const ADMIN_EMAIL = "shivta6200@gmail.com";
 
 // Create transporter
 const createTransporter = () => {
   return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT || '587'),
-    secure: process.env.EMAIL_SECURE === 'true',
+    host: process.env.EMAIL_HOST || "smtp.gmail.com",
+    port: parseInt(process.env.EMAIL_PORT || "587"),
+    secure: process.env.EMAIL_SECURE === "true",
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASSWORD,
     },
-  } as nodemailer.TransportOptions)
-}
+  } as nodemailer.TransportOptions);
+};
 
 // Send thank you email to user when they sign in
 export async function sendThankYouEmail(
   userEmail: string,
   userName: string,
-  userId: string
+  userId: string,
 ) {
-  const transporter = createTransporter()
+  const transporter = createTransporter();
 
   const mailOptions: nodemailer.SendMailOptions = {
     from: process.env.EMAIL_FROM || `"CodeQuest" <${process.env.EMAIL_USER}>`,
     to: userEmail,
-    subject: 'Thank you for choosing CodeQuest! 🚀',
+    subject: "Thank you for choosing CodeQuest! 🚀",
     html: `
       <!DOCTYPE html>
       <html>
@@ -72,7 +72,7 @@ export async function sendThankYouEmail(
             </ul>
             
             <div style="text-align: center; margin-top: 20px;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/courses" class="cta">Start Learning</a>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/courses" class="cta">Start Learning</a>
             </div>
             
             <div class="footer">
@@ -84,15 +84,15 @@ export async function sendThankYouEmail(
       </body>
       </html>
     `,
-  }
+  };
 
   try {
-    await transporter.sendMail(mailOptions)
-    console.log('Welcome email sent to:', userEmail)
-    return { success: true }
+    await transporter.sendMail(mailOptions);
+    console.log("Welcome email sent to:", userEmail);
+    return { success: true };
   } catch (error) {
-    console.error('Error sending welcome email:', error)
-    return { success: false, error }
+    console.error("Error sending welcome email:", error);
+    return { success: false, error };
   }
 }
 
@@ -100,9 +100,9 @@ export async function sendThankYouEmail(
 export async function sendAdminSignInNotification(
   userName: string,
   userEmail: string,
-  userId: string
+  userId: string,
 ) {
-  const transporter = createTransporter()
+  const transporter = createTransporter();
 
   const mailOptions: nodemailer.SendMailOptions = {
     from: process.env.EMAIL_FROM || `"CodeQuest" <${process.env.EMAIL_USER}>`,
@@ -151,7 +151,7 @@ export async function sendAdminSignInNotification(
             <p style="color: #6b7280;">You can track this user's activity from admin panel.</p>
             
             <div style="text-align: center; margin-top: 20px;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin" style="background: #9333ea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin" style="background: #9333ea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
                 Go to Admin Panel
               </a>
             </div>
@@ -166,14 +166,14 @@ export async function sendAdminSignInNotification(
       </body>
       </html>
     `,
-  }
+  };
 
   try {
-    await transporter.sendMail(mailOptions)
-    console.log('Admin sign-in notification sent to:', ADMIN_EMAIL)
-    return { success: true }
+    await transporter.sendMail(mailOptions);
+    console.log("Admin sign-in notification sent to:", ADMIN_EMAIL);
+    return { success: true };
   } catch (error) {
-    console.error('Error sending admin notification:', error)
-    return { success: false, error }
+    console.error("Error sending admin notification:", error);
+    return { success: false, error };
   }
 }

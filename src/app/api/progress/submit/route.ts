@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
 // XP and Level System Configuration
-const XP_PER_LEVEL = 1000
-const LEVEL_CAP = 100
+const XP_PER_LEVEL = 1000;
+const LEVEL_CAP = 100;
 
 /**
  * Calculate level from total XP
  */
 function calculateLevelFromXP(xp: number): number {
-  return Math.min(Math.floor(xp / XP_PER_LEVEL) + 1, LEVEL_CAP)
+  return Math.min(Math.floor(xp / XP_PER_LEVEL) + 1, LEVEL_CAP);
 }
 
 /**
@@ -18,13 +18,13 @@ function calculateLevelFromXP(xp: number): number {
 async function updateUserStats(userId: string, xpGained: number) {
   const user = await db.user.findUnique({
     where: { id: userId },
-  })
+  });
 
-  if (!user) throw new Error('User not found')
+  if (!user) throw new Error("User not found");
 
-  const newXP = user.xp + xpGained
-  const newLevel = calculateLevelFromXP(newXP)
-  const leveledUp = newLevel > user.level
+  const newXP = user.xp + xpGained;
+  const newLevel = calculateLevelFromXP(newXP);
+  const leveledUp = newLevel > user.level;
 
   const updatedUser = await db.user.update({
     where: { id: userId },
@@ -33,9 +33,9 @@ async function updateUserStats(userId: string, xpGained: number) {
       level: newLevel,
       lastActivity: new Date(),
     },
-  })
+  });
 
-  return { user: updatedUser, leveledUp, newLevel }
+  return { user: updatedUser, leveledUp, newLevel };
 }
 
 /**
@@ -44,30 +44,32 @@ async function updateUserStats(userId: string, xpGained: number) {
 async function updateStreak(userId: string) {
   const user = await db.user.findUnique({
     where: { id: userId },
-  })
+  });
 
-  if (!user) throw new Error('User not found')
+  if (!user) throw new Error("User not found");
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const lastActivity = user.lastActivity ? new Date(user.lastActivity) : null
-  lastActivity?.setHours(0, 0, 0, 0)
+  const lastActivity = user.lastActivity ? new Date(user.lastActivity) : null;
+  lastActivity?.setHours(0, 0, 0, 0);
 
   const daysSinceLastActivity = lastActivity
-    ? Math.floor((today.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24))
-    : 1
+    ? Math.floor(
+        (today.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24),
+      )
+    : 1;
 
-  let newStreak = 1
-  let newMaxStreak = user.maxStreak
+  let newStreak = 1;
+  let newMaxStreak = user.maxStreak;
 
   if (daysSinceLastActivity <= 1) {
     // Active within last 2 days (consecutive)
-    newStreak = user.streak + 1
-    newMaxStreak = Math.max(newStreak, user.maxStreak)
+    newStreak = user.streak + 1;
+    newMaxStreak = Math.max(newStreak, user.maxStreak);
   } else if (daysSinceLastActivity > 1) {
     // Streak broken, start fresh
-    newStreak = 1
+    newStreak = 1;
   }
 
   await db.user.update({
@@ -77,9 +79,9 @@ async function updateStreak(userId: string) {
       maxStreak: newMaxStreak,
       lastActivity: new Date(),
     },
-  })
+  });
 
-  return { streak: newStreak, maxStreak: newMaxStreak }
+  return { streak: newStreak, maxStreak: newMaxStreak };
 }
 
 /**
@@ -95,12 +97,12 @@ async function checkAndUnlockBadges(userId: string) {
         },
       },
     },
-  })
+  });
 
-  if (!user) return []
+  if (!user) return [];
 
-  const unlockedBadgeIds = new Set(user.userBadges.map(ub => ub.badgeId))
-  const newlyUnlockedBadges: any[] = []
+  const unlockedBadgeIds = new Set(user.userBadges.map((ub) => ub.badgeId));
+  const newlyUnlockedBadges: any[] = [];
 
   // Get all badges user hasn't unlocked yet
   const availableBadges = await db.badge.findMany({
@@ -109,40 +111,40 @@ async function checkAndUnlockBadges(userId: string) {
         notIn: Array.from(unlockedBadgeIds),
       },
     },
-  })
+  });
 
   for (const badge of availableBadges) {
-    let shouldUnlock = false
+    let shouldUnlock = false;
 
     switch (badge.requirementType) {
-      case 'xp':
-        shouldUnlock = user.xp >= badge.requirementValue
-        break
-      case 'level':
-        shouldUnlock = user.level >= badge.requirementValue
-        break
-      case 'streak':
-        shouldUnlock = user.streak >= badge.requirementValue
-        break
-      case 'lessons':
+      case "xp":
+        shouldUnlock = user.xp >= badge.requirementValue;
+        break;
+      case "level":
+        shouldUnlock = user.level >= badge.requirementValue;
+        break;
+      case "streak":
+        shouldUnlock = user.streak >= badge.requirementValue;
+        break;
+      case "lessons":
         const completedLessons = await db.userProgress.count({
           where: {
             userId,
             isCompleted: true,
           },
-        })
-        shouldUnlock = completedLessons >= badge.requirementValue
-        break
-      case 'courses':
+        });
+        shouldUnlock = completedLessons >= badge.requirementValue;
+        break;
+      case "courses":
         const completedCourses = await db.userProgress.groupBy({
-          by: ['courseId'],
+          by: ["courseId"],
           where: {
             userId,
             isCompleted: true,
           },
-        })
-        shouldUnlock = completedCourses.length >= badge.requirementValue
-        break
+        });
+        shouldUnlock = completedCourses.length >= badge.requirementValue;
+        break;
     }
 
     if (shouldUnlock) {
@@ -151,37 +153,34 @@ async function checkAndUnlockBadges(userId: string) {
           userId,
           badgeId: badge.id,
         },
-      })
-      newlyUnlockedBadges.push(badge)
+      });
+      newlyUnlockedBadges.push(badge);
     }
   }
 
-  return newlyUnlockedBadges
+  return newlyUnlockedBadges;
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { userId, lessonId, code, isFirstTry = false } = body
+    const body = await request.json();
+    const { userId, lessonId, code, isFirstTry = false } = body;
 
     if (!userId || !lessonId) {
       return NextResponse.json(
-        { error: 'userId and lessonId are required' },
-        { status: 400 }
-      )
+        { error: "userId and lessonId are required" },
+        { status: 400 },
+      );
     }
 
     // Get lesson details
     const lesson = await db.lesson.findUnique({
       where: { id: lessonId },
       include: { course: true },
-    })
+    });
 
     if (!lesson) {
-      return NextResponse.json(
-        { error: 'Lesson not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
     }
 
     // Check if lesson is locked (requires previous lesson)
@@ -193,13 +192,13 @@ export async function POST(request: Request) {
             lessonId: lesson.requiresLessonId,
           },
         },
-      })
+      });
 
       if (!previousProgress || !previousProgress.isCompleted) {
         return NextResponse.json(
-          { error: 'Complete previous lesson first to unlock this one' },
-          { status: 403 }
-        )
+          { error: "Complete previous lesson first to unlock this one" },
+          { status: 403 },
+        );
       }
     }
 
@@ -211,9 +210,9 @@ export async function POST(request: Request) {
           lessonId,
         },
       },
-    })
+    });
 
-    let progress
+    let progress;
 
     if (existingProgress) {
       // Update existing progress
@@ -230,7 +229,7 @@ export async function POST(request: Request) {
           isCompleted: true,
           completedAt: new Date(),
         },
-      })
+      });
     } else {
       // Create new progress entry
       progress = await db.userProgress.create({
@@ -243,21 +242,22 @@ export async function POST(request: Request) {
           isCompleted: true,
           completedAt: new Date(),
         },
-      })
+      });
     }
 
     // Update user stats (XP, level)
-    const xpGained = lesson.xpReward
-    const { user: updatedUser, leveledUp, newLevel } = await updateUserStats(
-      userId,
-      xpGained
-    )
+    const xpGained = lesson.xpReward;
+    const {
+      user: updatedUser,
+      leveledUp,
+      newLevel,
+    } = await updateUserStats(userId, xpGained);
 
     // Update streak
-    const streakUpdate = await updateStreak(userId)
+    const streakUpdate = await updateStreak(userId);
 
     // Check for badge unlocks
-    const newlyUnlockedBadges = await checkAndUnlockBadges(userId)
+    const newlyUnlockedBadges = await checkAndUnlockBadges(userId);
 
     return NextResponse.json({
       success: true,
@@ -268,12 +268,12 @@ export async function POST(request: Request) {
       leveledUp,
       streak: streakUpdate.streak,
       newlyUnlockedBadges,
-    })
+    });
   } catch (error) {
-    console.error('Error submitting progress:', error)
+    console.error("Error submitting progress:", error);
     return NextResponse.json(
-      { error: 'Failed to submit progress' },
-      { status: 500 }
-    )
+      { error: "Failed to submit progress" },
+      { status: 500 },
+    );
   }
 }

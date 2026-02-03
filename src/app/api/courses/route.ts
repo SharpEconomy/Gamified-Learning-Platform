@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
 export async function GET() {
   try {
@@ -15,16 +15,16 @@ export async function GET() {
         },
       },
       orderBy: {
-        order: 'asc',
+        order: "asc",
       },
-    })
+    });
 
-    return NextResponse.json(courses)
+    return NextResponse.json(courses);
   } catch (error) {
-    console.error('Error fetching courses:', error)
+    console.error("Error fetching courses:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch courses' },
-      { status: 500 }
-    )
+      { error: "Failed to fetch courses" },
+      { status: 500 },
+    );
   }
 }

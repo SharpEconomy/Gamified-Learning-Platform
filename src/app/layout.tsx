@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -91,12 +91,13 @@ export const metadata: Metadata = {
   verification: {
     google: "your-google-verification-code",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-  },
   category: "education",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -119,8 +120,8 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
-<main className="min-h-screen">{children}</main>
-<Toaster />
+          <main className="min-h-screen">{children}</main>
+          <Toaster />
         </Providers>
       </body>
     </html>

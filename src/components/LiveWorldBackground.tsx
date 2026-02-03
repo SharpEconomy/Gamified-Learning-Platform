@@ -1,77 +1,77 @@
-'use client'
-import { useEffect, useState } from 'react'
+"use client";
+import { useEffect, useState } from "react";
 
 export default function LiveWorldBackground() {
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
+    setMounted(true);
 
     // Create coins
-    const stage = document.querySelector('.stage')
-    if (!stage) return
+    const stage = document.querySelector(".stage");
+    if (!stage) return;
 
     for (let i = 0; i < 8; i++) {
-      const coin = document.createElement('div')
-      coin.className = 'coin'
-      coin.style.left = 5 + Math.random() * 90 + '%'
-      coin.style.top = 15 + Math.random() * 50 + '%'
-      coin.style.animationDelay = Math.random() * 3 + 's'
-      stage.appendChild(coin)
+      const coin = document.createElement("div");
+      coin.className = "coin";
+      coin.style.left = 5 + Math.random() * 90 + "%";
+      coin.style.top = 15 + Math.random() * 50 + "%";
+      coin.style.animationDelay = Math.random() * 3 + "s";
+      stage.appendChild(coin);
     }
 
     // Create stars
     for (let i = 0; i < 12; i++) {
-      const star = document.createElement('div')
-      star.className = 'star'
-      star.style.left = Math.random() * 100 + '%'
-      star.style.top = 5 + Math.random() * 30 + '%'
-      star.style.animationDelay = Math.random() * 2 + 's'
-      star.style.width = 4 + Math.random() * 8 + 'px'
-      star.style.height = star.style.width
-      stage.appendChild(star)
+      const star = document.createElement("div");
+      star.className = "star";
+      star.style.left = Math.random() * 100 + "%";
+      star.style.top = 5 + Math.random() * 30 + "%";
+      star.style.animationDelay = Math.random() * 2 + "s";
+      star.style.width = 4 + Math.random() * 8 + "px";
+      star.style.height = star.style.width;
+      stage.appendChild(star);
     }
 
     // Create gems
     for (let i = 0; i < 6; i++) {
-      const gem = document.createElement('div')
-      gem.className = 'gem'
-      gem.style.left = 10 + Math.random() * 80 + '%'
-      gem.style.top = 20 + Math.random() * 40 + '%'
-      gem.style.animationDelay = Math.random() * 4 + 's'
-      stage.appendChild(gem)
+      const gem = document.createElement("div");
+      gem.className = "gem";
+      gem.style.left = 10 + Math.random() * 80 + "%";
+      gem.style.top = 20 + Math.random() * 40 + "%";
+      gem.style.animationDelay = Math.random() * 4 + "s";
+      stage.appendChild(gem);
     }
 
     // Create floating platforms
     const platforms = [
-      { left: '10%', bottom: '25%', width: '80px' },
-      { left: '75%', bottom: '30%', width: '60px' },
-      { left: '20%', bottom: '20%', width: '70px' },
-      { left: '60%', bottom: '18%', width: '90px' }
-    ]
+      { left: "10%", bottom: "25%", width: "80px" },
+      { left: "75%", bottom: "30%", width: "60px" },
+      { left: "20%", bottom: "20%", width: "70px" },
+      { left: "60%", bottom: "18%", width: "90px" },
+    ];
 
     platforms.forEach((pos, i) => {
-      const platform = document.createElement('div')
-      platform.className = 'floating-platform'
-      platform.style.left = pos.left
-      platform.style.bottom = pos.bottom
-      platform.style.width = pos.width
-      platform.style.animationDelay = (i * 0.5) + 's'
-      stage.appendChild(platform)
-    })
+      const platform = document.createElement("div");
+      platform.className = "floating-platform";
+      platform.style.left = pos.left;
+      platform.style.bottom = pos.bottom;
+      platform.style.width = pos.width;
+      platform.style.animationDelay = i * 0.5 + "s";
+      stage.appendChild(platform);
+    });
 
     // Create question blocks
     for (let i = 0; i < 4; i++) {
-      const block = document.createElement('div')
-      block.className = 'question-block'
-      block.style.left = 15 + Math.random() * 70 + '%'
-      block.style.top = 25 + Math.random() * 35 + '%'
-      block.style.animationDelay = Math.random() * 2 + 's'
-      stage.appendChild(block)
+      const block = document.createElement("div");
+      block.className = "question-block";
+      block.style.left = 15 + Math.random() * 70 + "%";
+      block.style.top = 25 + Math.random() * 35 + "%";
+      block.style.animationDelay = Math.random() * 2 + "s";
+      stage.appendChild(block);
     }
-  }, [])
+  }, []);
 
-  if (!mounted) return null
+  if (!mounted) return null;
 
   return (
     <>
@@ -549,9 +549,21 @@ export default function LiveWorldBackground() {
           </div>
 
           {/* Floating elements */}
-          <div className="xp-popup" style={{ left: '15%', top: '40%' }}>+100 XP</div>
-          <div className="xp-popup" style={{ left: '75%', top: '35%', animationDelay: '1s' }}>+50 XP</div>
-          <div className="xp-popup" style={{ left: '50%', top: '50%', animationDelay: '2s' }}>Level Up!</div>
+          <div className="xp-popup" style={{ left: "15%", top: "40%" }}>
+            +100 XP
+          </div>
+          <div
+            className="xp-popup"
+            style={{ left: "75%", top: "35%", animationDelay: "1s" }}
+          >
+            +50 XP
+          </div>
+          <div
+            className="xp-popup"
+            style={{ left: "50%", top: "50%", animationDelay: "2s" }}
+          >
+            Level Up!
+          </div>
 
           {/* Game Hero */}
           <div className="game-hero">
@@ -568,6 +580,5 @@ export default function LiveWorldBackground() {
         </div>
       </div>
     </>
-  )
+  );
 }
-

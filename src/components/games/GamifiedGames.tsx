@@ -15,8 +15,8 @@ export default function GamifiedGames() {
       <h1>🎮 Gamified Coding Platform</h1>
 
       <p>
-        Coding seekho 3 mazedaar games ke through! Har game complete
-        karo aur badge unlock karo.
+        Coding seekho 3 mazedaar games ke through! Har game complete karo aur
+        badge unlock karo.
       </p>
 
       <h2>High Score: {highScore}</h2>

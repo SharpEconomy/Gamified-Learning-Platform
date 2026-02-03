@@ -1,8 +1,18 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Gamepad2, Crown, Flame, Target, BookOpen, Sparkles, Trophy, Gem, Users } from 'lucide-react'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Gamepad2,
+  Crown,
+  Flame,
+  Target,
+  BookOpen,
+  Sparkles,
+  Trophy,
+  Gem,
+  Users,
+} from "lucide-react";
 
 export default function Navbar() {
   return (
@@ -20,10 +30,16 @@ export default function Navbar() {
 
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/courses" className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors">
+          <Link
+            href="/courses"
+            className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
+          >
             Courses
           </Link>
-          <Link href="/leaderboard" className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors">
+          <Link
+            href="/leaderboard"
+            className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
+          >
             Leaderboard
           </Link>
         </div>
@@ -38,5 +54,5 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
-  )
+  );
 }
